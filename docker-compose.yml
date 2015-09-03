@@ -15,6 +15,7 @@ postgis:
    - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf:ro
    # Default postgresql.conf is good for development
    # For production use, uncomment below
+   # To use guided parameter tuning, go to http://pgtune.leopard.in.ua/
    #- ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf:ro
 
   environment:
