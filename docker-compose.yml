@@ -1,0 +1,23 @@
+postgis:
+  # Use either image: ... or build: ...
+  # Use auto-built image from Docker hub 
+  #image: cheewai/postgis
+  # Build image locally from Dockerfile 
+  build: .
+  dockerfile: Dockerfile
+
+  ports:
+   - "15432:5432"
+
+  volumes:
+   # Mount data directory
+   - ./data:/var/lib/postgresql/data
+   - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf:ro
+   # Default postgresql.conf is good for development
+   # For production use, uncomment below
+   #- ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf:ro
+
+  environment:
+   - PGDATA=/var/lib/postgresql/data/pgdata
+   - POSTGRES_PASSWORD=pgadmin
+   - POSTGRES_USER=afisuser
