@@ -5,7 +5,6 @@
 
 This Docker project creates a PostgreSQL and PostGIS database server in a container on a suitable host machine. It is inspired by base image [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/~/dockerfile/) but added with [pg-barman](http://www.pgbarman.org/) which is an essential tool for database archive/backup/restore.
 
-Refer to the root base image [postgres](https://hub.docker.com/_/postgres/) for the full details on customizing the runtime environment.
 
 > If you would like to do additional initialization in an image derived from this one, add one or more *.sql or *.sh scripts under /docker-entrypoint-initdb.d (creating the directory if necessary). After the entrypoint calls initdb to create the default postgres user and database, it will run any *.sql files and source any *.sh scripts found in that directory to do further initialization before starting the service.
 >
@@ -19,52 +18,52 @@ The actual database directory is - intentionally - located outside the container
 
 ## Usage
 
+* Create your *docker-compose.yml* file
+
 ```
-#TODO: include a complete commented compose-docker.yml
+postgis:
+  # Either use autobuild image on Docker hub or build locally from Dockerfile:
+  image: cheewai/postgis
+  #build: .
+
+  # Specify container name also ensures only one instance is started
+  #name: postgis
+
+  # Refer to https://hub.docker.com/_/postgres/ for other possibilities
+  environment:
+   - PGDATA=/var/lib/postgresql/data
+
+  ports:
+   - "5432:5432"
+
+  volumes:
+   # Mount your data directory so your database may be persisted
+   - path/to/data/directory:/var/lib/postgresql/data
+   # Customize access control to overwrite the default
+   #- path/to/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf:ro
+   # Customize server tuning parameters to overwrite the default
+   #- path/to/postgresql.conf:/var/lib/postgresql/data/postgresql.conf:ro
 ```
 
-2. Build the Docker image:
+* Build the Docker image:
 
 ```
 docker-compose -f docker-compose.yml build
 ```
 
-3. Run the newly built Docker image:
+* Run the newly built Docker image:
 
 ```
 docker-compose -f docker-compose.yml up -d
 ```
 
-7. To run any bootstrap commands as soon as Postgresql server starts up, set environment variable PG_APPS_SCRIPT to the name of your executable script (without directory path) in build_run_env, and store the script in *main* subdirectory. This script will be executed in Bash shell with the effective user-id of the database superusersh after the Postgresql server has started up each time the Docker container runs. An example of such a script:
-
-7. Sample bootstrap script
-
-```
-#! /bin/bash
-set -ux
-
-psql -h localhost -c "CREATE USER fynbosuser WITH PASSWORD 'q1w2e3r4';"
-
-for _db in fynbosfire_data fynbosfire_viewer; do
-  # Do nothing if database already exists
-  rc=$(psql -h localhost -A -t -c "SELECT 1 FROM pg_database WHERE datname = '$_db'")
-  [ -z "$rc" ] && {
-    psql -h localhost -c "CREATE DATABASE $_db OWNER=fynbosuser;"
-    psql -h localhost $_db -c "CREATE EXTENSION postgis;"
-    psql -h localhost $_db -c "CREATE EXTENSION postgis_topology;"
-
-    if [ "$_db" = "fynbosfire_viewer" ]; then
-      SQLDIR="/usr/share/postgresql/9.3/contrib/postgis-2.1/"
-      [ -f "$SQLDIR/legacy_minimal.sql" ] && psql -h localhost fynbosfire_viewer -f $SQLDIR/legacy_minimal.sql
-      [ -f "$SQLDIR/legacy_gist.sql" ] && psql -h localhost fynbosfire_viewer -f $SQLDIR/legacy_gist.sql
-    fi
-  }
-done
-``` 
-
 ## Production Use
 
-Plan for disaster.
+* The default postgresql.conf is good enough for development but for production use, consider using [guided parameter tuning](http://pgtune.leopard.in.ua/)
+
+* Plan for disaster.
+
+>Seriously consider [Barman](http://www.pgbarman.org/) first. Maybe it is adequate and superior to the other suggestions below
 
 ### Daily Backup
 
@@ -73,6 +72,7 @@ This repo includes a script, *dumpdb.sh* which is intended to be run by Postgres
 You can schedule a nightly cron job to execute it using *docker exec*, e.g.
 
 ```
+# Obviously /restore must be persisted outside the container
 docker exec {DOCKER_NAME} su - postgres /runtime/dumpdb.sh /restore
 ```
 
@@ -101,7 +101,7 @@ First and foremost, read the official documentation for **Continuous Archiving a
 
 > At all times, PostgreSQL maintains a write ahead log (WAL) in the pg_xlog/ subdirectory of the cluster's data directory. The log records every change made to the database's data files. This log exists primarily for crash-safety purposes: if the system crashes, the database can be restored to consistency by "replaying" the log entries made since the last checkpoint.
 
-Make use of these settings in *main/postgresql\_nogit.conf* to enable WAL archiving:
+Make use of these settings in *postgresql.conf* to enable WAL archiving:
 
 * wal_level
 * archive_mode = on
@@ -111,12 +111,3 @@ Make use of these settings in *main/postgresql\_nogit.conf* to enable WAL archiv
 ### High-availability
 
 *postgresql.conf* has a section for replication. Refer to https://wiki.postgresql.org/wiki/Streaming_Replication
-
-
-## Other
-
-You can create a more readable PDF version of this file by running:
-
-```
-pandoc README.md -V geometry:margin=1in -o README.pdf
-```
