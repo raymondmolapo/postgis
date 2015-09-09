@@ -14,8 +14,6 @@ This Docker project creates a PostgreSQL and PostGIS database server in a contai
 >
 >If there is no database when postgres starts in a container, then postgres will create the default database for you. While this is the expected behavior of postgres, this means that it will not accept incoming connections during that time. This may cause issues when using automation tools, such as **docker-compose**, that start several containers simultaneously.
 
-The actual database directory is - intentionally - located outside the container. The default *pg_hba.conf* allows an md5-connection (i.e. password-based access) from any CSIR Meraka subnet address (i.e. in the range 146.64.19.\* and 146.64.28.\*), excluding WiFi DHCP ranges.
-
 ## Usage
 
 * Create your *docker-compose.yml* file
