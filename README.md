@@ -5,6 +5,9 @@
 
 This Docker project creates a PostgreSQL and PostGIS database server in a container on a suitable host machine. It is inspired by base image [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/~/dockerfile/) but added with [pg-barman](http://www.pgbarman.org/) which is an essential tool for database archive/backup/restore.
 
+[2015-09-16 update]
+pg-barman requires ssh server on both the live and backup database servers, thus making it unsuitable for postgresql server running as Docker container
+
 The base image Dockerfile uses [/docker-entrypoint.sh](https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh) as ENTRYPOINT
 
 From the [base image README](https://hub.docker.com/_/postgres/):
@@ -67,7 +70,7 @@ docker-compose -f docker-compose.yml up -d
 
 * Plan for disaster.
 
->Seriously consider [Barman](http://www.pgbarman.org/) first. Maybe it is adequate and superior to the other suggestions below
+> ~~Seriously consider [Barman](http://www.pgbarman.org/) first. Maybe it is adequate and superior to the other suggestions below~~
 
 ### Daily Backup
 
