@@ -5,7 +5,9 @@
 
 This Docker project creates a PostgreSQL and PostGIS database server in a container on a suitable host machine. It is inspired by base image [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/~/dockerfile/) but added with [pg-barman](http://www.pgbarman.org/) which is an essential tool for database archive/backup/restore.
 
+The base image Dockerfile uses [/docker-entrypoint.sh](https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh) as ENTRYPOINT
 
+From the [base image README](https://hub.docker.com/_/postgres/):
 > If you would like to do additional initialization in an image derived from this one, add one or more *.sql or *.sh scripts under /docker-entrypoint-initdb.d (creating the directory if necessary). After the entrypoint calls initdb to create the default postgres user and database, it will run any *.sql files and source any *.sh scripts found in that directory to do further initialization before starting the service.
 >
 >These initialization files will be executed in sorted name order as defined by the current locale, which defaults to en_US.utf8. Any *.sql files will be executed by POSTGRES_USER, which defaults to the postgres superuser. It is recommended that any psql commands that are run inside of a *.sh script be executed as POSTGRES_USER by using the --username "$POSTGRES_USER" flag. This user will be able to connect without a password due to the presence of trust authentication for Unix socket connections made inside the container.
@@ -30,6 +32,8 @@ postgis:
   # Refer to https://hub.docker.com/_/postgres/ for other possibilities
   environment:
    - PGDATA=/var/lib/postgresql/data
+   - POSTGRES_PASSWORD=
+   #- POSTGRES_USER=postgres
 
   ports:
    - "5432:5432"
@@ -37,6 +41,8 @@ postgis:
   volumes:
    # Mount your data directory so your database may be persisted
    - path/to/data/directory:/var/lib/postgresql/data
+   #*** If you have no existing database, comment the following the first-run
+   #*** Empty data directory triggers initdb to be run
    # Customize access control to overwrite the default
    #- path/to/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf:ro
    # Customize server tuning parameters to overwrite the default
