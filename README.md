@@ -3,10 +3,17 @@
 
 ## About
 
-This Docker project creates a PostgreSQL and PostGIS database server in a container on a suitable host machine. It is inspired by base image [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/~/dockerfile/) but added with [pg-barman](http://www.pgbarman.org/) which is an essential tool for database archive/backup/restore.
+This Docker project creates a PostgreSQL and PostGIS database server in a container on a suitable host machine. It is inspired by base image [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/~/dockerfile/) but includes syslog ~~and   [pg-barman](http://www.pgbarman.org/) which is an essential tool for database archive/backup/restore~~.
 
 [2015-09-16 update]
 pg-barman requires ssh server on both the live and backup database servers, thus making it unsuitable for postgresql server running as Docker container
+
+With syslog, one could log to files and feed into feature-rich log analysis software like [Graylog2](https://www.digitalocean.com/community/tutorials/how-to-install-graylog2-and-centralize-logs-on-ubuntu-14-04),  [ELK stack](http://www.freeipa.org/page/Howto/Centralised_Logging_with_Logstash/ElasticSearch/Kibana), etc. in real time in *postgresql.conf*:
+
+```
+log_destination = 'stderr,syslog'
+logging_collector = on
+```
 
 The base image Dockerfile uses [/docker-entrypoint.sh](https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh) as ENTRYPOINT
 
