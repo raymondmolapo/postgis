@@ -117,10 +117,11 @@ First and foremost, read the official documentation for **Continuous Archiving a
 
 Make use of these settings in *postgresql.conf* to enable WAL archiving:
 
-* wal_level
+* wal_level = hot_standby
 * archive_mode = on
-* archive_command = 'rsync -a %p /path/to/wal_archive/%f'
+* archive_command = 'rsync -a %p postgres@replica-host:/path/to/wal_archive/%f'
 
+To delete old WAL archive using pg_archivecleanup, read  http://stackoverflow.com/questions/16943599/how-to-specify-cleanup-by-file-age-or-date-with-pg-archivecleanup
 
 ### High-availability
 
