@@ -5,30 +5,22 @@ MAINTAINER Cheewai Lai <clai@csir.co.za>
 
 # Subscribe to pgsql-pkg-debian@postgresql.org for release announcements
 ENV POSTGIS_MAJOR 2.2
-ENV POSTGIS_VERSION 2.2.1+dfsg-2.pgdg80+1
+ENV POSTGIS_VERSION 2.2.2+dfsg-1.pgdg80+1 
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV LANG en_ZA.UTF-8
+ENV LANGUAGE en_ZA.UTF-8
 
 RUN apt-get update \
 && apt-get install -y --no-install-recommends \
-postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR=$POSTGIS_VERSION \
-postgis=$POSTGIS_VERSION \
-rsyslog \
+ postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR=$POSTGIS_VERSION \
+ postgis=$POSTGIS_VERSION \
+ locales \
+ rsyslog \
+&& sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+&& sed -i -e 's/# en_ZA.UTF-8 UTF-8/en_ZA.UTF-8 UTF-8/' /etc/locale.gen \
+&& echo 'LANG="en_ZA.UTF-8"'>/etc/default/locale \
+&& dpkg-reconfigure locales \
+&& update-locale LANG=en_ZA.UTF-8 \
+&& dpkg-reconfigure locales \
 && rm -rf /var/lib/apt/lists/*
-
-ENV DEBIAN_FRONTEND=noninteractive
-RUN locale-gen en_ZA.UTF-8 && dpkg-reconfigure locales && \
- localedef -i en_ZA -c -f UTF-8 -A /usr/share/locale/locale.alias en_ZA.UTF-8
-ENV LANG en_ZA.UTF-8
-ENV LC_CTYPE=en_ZA.UTF-8
-
-# Not required in postgresql 9.3+ using extension
-#RUN mkdir -p /docker-entrypoint-initdb.d
-#ADD https://github.com/appropriate/docker-postgis/raw/master/initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
-
-#
-# Base image "postgres" defines these:
-#   https://github.com/docker-library/postgres
-#   https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh
-#
-#COPY docker-entrypoint.sh /
-#ENTRYPOINT ["/docker-entrypoint.sh"]
-#CMD ["postgres"]
