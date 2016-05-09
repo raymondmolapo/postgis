@@ -37,7 +37,7 @@ postgis:
   #build: .
 
   # Specify container name also ensures only one instance is started
-  #name: postgis
+  #container_name: postgis
 
   # Refer to https://hub.docker.com/_/postgres/ for other possibilities
   environment:
