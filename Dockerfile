@@ -1,11 +1,11 @@
-FROM postgres:9.4
+FROM postgres:9.5
 # Adapted from https://hub.docker.com/r/mdillon/postgis/
 
 MAINTAINER Cheewai Lai <clai@csir.co.za>
 
 # Subscribe to pgsql-pkg-debian@postgresql.org for release announcements
-ENV POSTGIS_MAJOR 2.2
-ENV POSTGIS_VERSION 2.2.2+dfsg-1.pgdg80+1 
+ENV POSTGIS_MAJOR 2.3
+ENV POSTGIS_VERSION 2.3 
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG en_ZA.UTF-8
